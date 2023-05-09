@@ -6,6 +6,7 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 const uuid = require('uuid')
+const axios = require('axios');
 
 
 // POST request: Add a new user
@@ -170,6 +171,73 @@ public_users.delete("/auth/review/:isbn", (req, res) => {
   res.send(`review with ISBN ${isbn} deleted.`);
 });
 
+
+//Get the book list available in the shop using Promises
+public_users.get('/books',function (req, res) {
+
+    const get_books = new Promise((resolve, reject) => {
+        resolve(res.send(JSON.stringify({books}, null, 4)));
+      });
+
+      get_books.then(() => console.log("Promise task resolved"));
+
+  });
+
+
+public_users.get('/isbns/:isbn',function (req, res) {
+
+    const get_books = new Promise((resolve, reject) => {
+      const isbn = req.params.isbn;
+    
+        resolve(res.send(books[isbn]));
+      });
+
+      get_books.then(() => console.log("Promise task resolved"));
+
+  });
+
+
+   public_users.get('/isbn/:isbn', function (req, res) {
+    let bookIsbn= axios.get('/isbn/:isbn');
+    bookIsbn.then(()=>{res.send(JSON.stringify(books,null,4))});
+    bookIsbn.catch(err => {
+        console.log(err.toString())
+    });
+    
+  });
+
+
+ public_users.get('/author/:author', function (req, res) {
+    let authorAxios= axios.get('/author/:author');
+    const author = req.params.author;
+    for (var key in books){
+      if(books[key]['author'] === author){
+        details = books[key]
+      }
+    }
+    authorAxios.then(()=>{res.send(details)});
+    authorAxios.catch(err => {
+        console.log(err.toString())
+    });
+    
+  });
+
+
+// Get all books based on title
+public_users.get('/title/:title',function (req, res) {
+  //Write your code here
+  let bookDetails= axios.get('/title/:title');
+  const title = req.params.title;
+  for (var key in books){
+    if (books[key]['title'] === title){
+      details = books[key]
+    }
+  }
+  bookDetails.then(()=>{res.send(details)});
+  bookDetails.catch(err => {
+  console.log(err.toString())
+  });
+});
 
 
 module.exports.general = public_users;
